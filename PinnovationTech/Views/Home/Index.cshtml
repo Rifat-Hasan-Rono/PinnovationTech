@@ -1,0 +1,107 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+<link href="~/css/dataTables.bootstrap4.min.css" rel="stylesheet" />
+<script src="~/js/jquery.dataTables.min.js"></script>
+<script src="~/js/dataTables.bootstrap4.min.js"></script>
+<div class="row">
+    <div class="col-md-12">
+        <div class="main-card mb-3 card">
+            <div class="card-body table-responsive">
+                <table style="width: 100%;" id="dataTable" class="table table-hover table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Sl No</th>
+                            <th>Name</th>
+                            <th>Phone</th>
+                            <th>Email</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tfoot>
+                        <tr>
+                            <th>Sl No</th>
+                            <th>Name</th>
+                            <th>Phone</th>
+                            <th>Email</th>
+                            <th>Action</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    var table;
+    $(document).ready(function () {
+        /* GET LIST OF USER */
+        table = $('#dataTable').DataTable({
+            "columnDefs": [
+                { "orderable": false, "targets": [0,4] }
+            ],
+            "responsive": true,
+            "processing": true,
+            "serverSide": true,
+            "lengthMenu": [
+                [1,10, 15, 25, 50, 100, -1],
+                [1,10, 15, 25, 50, 100, "All"]
+            ],
+            "order": [1, "asc"],
+            "start": 0,
+            "length": 10,
+            "bFilter": false,
+            "ajax":
+            {
+                "url": '@Url.RouteUrl("Home")',
+                "contentType": "application/x-www-form-urlencoded",
+                "type": "POST",
+                "dataType": "JSON",
+                "data": function (d) {
+                    return d;
+                },
+                "dataSrc": function (json) {
+                    json.draw = json.draw;
+                    json.recordsTotal = json.recordsTotal;
+                    json.recordsFiltered = json.recordsFiltered;
+                    json.data = json.users;
+                    var return_data = json;
+                    return return_data.data;
+                }
+            },
+            "columns": [
+                {
+                    "data": null,
+                    "mRender": function (data, type, full, meta) { return meta.row + meta.settings._iDisplayStart + 1; }
+                },
+                {
+                    "data": null,
+                    "mRender": function (data, type, full, meta) { return data.fName + ' ' + data.lName; }
+                },
+                {
+                    "data": null,
+                    "mRender": function (data, type, full) { return data.phoneNo }
+                },
+                {
+                    "data": null,
+                    "mRender": function (data, type, full) { return data.emailNo }
+                },
+                {
+                    "data": null,
+                    "mRender": function (data, type, full) {
+                        var setting = '<button type="button" tabindex="0" class="btn btn-primary" onclick="Detail(' + data.userId + ')"">Detail</button>';
+                        return setting;
+                    }
+                }
+            ]
+        });
+    });
+
+    // OPEN USER PROFILE DETAIL TO NEW TAB
+    function Detail(id) {
+        var url = '@Url.RouteUrl("View", new { id = "__id__" })';
+        window.location.href = url.replace('__id__', id);
+    }
+</script>

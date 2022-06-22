@@ -1,0 +1,98 @@
+﻿@using System.Security.Claims;
+
+@{
+    ViewData["Title"] = "Detail Information";
+    User user = (User)ViewData["User"];
+    List<Country> countries = (List<Country>)ViewData["Countries"];
+}
+<h1>@ViewData["Title"]</h1>
+
+<div class="container">
+    <div class="row">
+        <div class="col-xs-12 col-sm-6 col-md-6">
+            <div class="well well-sm">
+                <div class="row">
+                    <div class="col-sm-6 col-md-4">
+                        <img src="@user.UserImg" width="170" height="210" alt="" class="img-rounded img-responsive" />
+                    </div>
+                    <div class="col-sm-6 col-md-8">
+                        <h4>
+                            Name: @user.Name
+                        </h4>
+                        <small>
+                            <cite title="San Francisco, USA">
+                                Address: @user.CityName, @user.CountryName <i class="glyphicon glyphicon-map-marker">
+                                </i>
+                            </cite>
+                        </small>
+                        <p>
+                            <i class="glyphicon glyphicon-envelope"></i>Email: @user.EmailNo
+                            <br />
+                            <i class="glyphicon glyphicon-envelope"></i>Mobile: @user.PhoneNo
+                            <br />
+                            <i class="glyphicon glyphicon-gift"></i>Age: @user.Age
+                            <br />
+                            <i class="glyphicon glyphicon-gift"></i>Gender: @user.GenderName
+                        </p>
+                        <!-- Split button -->
+                        <div>
+                            <a href="@user.UserCV" class="btn btn-primary" download="@{@user.Name}_CV">Download CV</a>
+                            @if (Convert.ToInt32(User.FindFirst(ClaimTypes.NameIdentifier).Value) != 0){
+                            <a href="#!"
+                               class="btn btn-primary" onclick="Edit()">Edit Profile</a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<partial name="RegistrationForm" />
+<script>
+    /* GET SELECTED USER DATA */
+    function Edit() {
+        $.ajax({
+            url: '@Url.RouteUrl("Edit")',
+            contentType: "application/x-www-form-urlencoded",
+            type: 'Post',
+            data: { "userId": '@user.UserId' },
+            dataType: 'json'
+        }).done(function (response) {
+            $('#fName').val(response.fName);
+            $('#lName').val(response.lName);
+            $('#phoneNo').val(response.phoneNo);
+            $('#dob').val(response.dob.split('T')[0]);
+            $('#userCountry').val(response.countryId);
+            $('#emailNo').val(response.emailNo).prop('disabled', true);
+            GetCities(response.countryId, response.userCity);
+            $('#gender option:contains(' + response.genderName + ')').attr('selected', true);
+            $('#modalTitle').text('Edit Profile');
+            $('.modal').modal('show');
+        }).fail(function () {
+            alert('Oops...!Something went wrong with ajax !');
+        });
+    }
+
+    /* GET CITIES FOR SELECTED COUNTRY */
+    function GetCities(countryId, userCity) {
+        $('#userCity').prop("disabled", true);
+        $('#userCity').empty();
+        $('#userCity').append('<option value=0>Please Select</option>');
+        $.ajax({
+            url: '@Url.RouteUrl("GetCities")',
+            contentType: "application/x-www-form-urlencoded",
+            type: 'Post',
+            data: { "countryId": countryId },
+            dataType: 'json'
+        }).done(function (response) {
+            for (i = 0; i < response.length; i++) {
+                var selected = userCity == response[i].cityId ? 'selected' : ''
+                $('#userCity').append('<option value="' + response[i].cityId + '" ' + selected + '>' + response[i].cityName + '</option>');
+            }
+            $('#userCity').prop("disabled", false);
+        }).fail(function () {
+            alert('Oops...!Something went wrong with ajax !');
+        });
+    }
+</script>

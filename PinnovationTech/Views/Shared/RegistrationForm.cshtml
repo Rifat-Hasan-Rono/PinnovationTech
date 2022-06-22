@@ -1,0 +1,211 @@
+﻿
+@{
+    IEnumerable<Country> countries = ViewBag.Countries;
+}
+<div class="modal fade user-modal" tabindex="-1" role="dialog" aria-labelledby="userModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">Registration Form</h5>
+                <button type="button" class="close reset" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="userForm" class="col-md-12 mx-auto" enctype="multipart/form-data">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="position-relative form-group">
+                                <label for="fName">First Name</label>
+                                <input type="text" name="fName" class="form-control" id="fName" />
+                                <em id="fName-error" class="error invalid-feedback"></em>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="position-relative form-group">
+                                <label for="lName">Last Name</label>
+                                <input type="text" name="lName" class="form-control" id="lName" />
+                                <em id="lName-error" class="error invalid-feedback"></em>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="position-relative form-group">
+                                <label for="phoneNo">Phone Number</label>
+                                <input type="text" name="phoneNo" class="form-control" id="phoneNo" />
+                                <em id="phoneNo-error" class="error invalid-feedback"></em>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="position-relative form-group">
+                                <label for="emailNo">Email</label>
+                                <input type="text" name="emailNo" class="form-control" id="emailNo" />
+                                <em id="emailNo-error" class="error invalid-feedback"></em>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="position-relative form-group">
+                                <label for="userImage">Image</label>
+                                <input type="file" name="userImage" class="form-control-file" id="userImage" />
+                                <em id="userImage-error" class="error invalid-feedback"></em>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="position-relative form-group">
+                                <label for="userCV">CV</label>
+                                <input type="file" name="userCV" class="form-control-file" id="userCV" />
+                                <em id="userCV-error" class="error invalid-feedback"></em>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="position-relative form-group">
+                                <label for="userCountry">Country</label>
+                                <select class="form-control" id="userCountry" name="userCountry" onchange="GetCities(this.value)">
+                                    <option value="0">Please Select</option>
+                                    @foreach (Country country in countries)
+                                    {
+                                        <option value="@country.CountryId">@country.CountryName</option>
+                                    }
+                                </select>
+                                <em id="userCountry-error" class="error invalid-feedback"></em>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="position-relative form-group">
+                                <label for="userCity">City</label>
+                                <select class="form-control" id="userCity" name="userCity">
+                                </select>
+                                <em id="userCity-error" class="error invalid-feedback"></em>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="position-relative form-group">
+                                <label for="gender">Gender</label>
+                                <select class="form-control" id="gender" name="gender">
+                                    <option value="0">Please Select</option>
+                                    <option value="1">Male</option>
+                                    <option value="2">Female</option>
+                                    <option value="3">Other</option>
+                                </select>
+                                <em id="gender-error" class="error invalid-feedback"></em>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="position-relative form-group">
+                                <label for="dob">Date of Birth</label>
+                                <input type="date" name="dob" class="form-control" id="dob" />
+                                <em id="dob-error" class="error invalid-feedback"></em>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="position-relative form-group">
+                                <label for="password">Password</label>
+                                <input type="password" name="password" class="form-control" id="password" />
+                                <em id="password-error" class="error invalid-feedback"></em>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="position-relative form-group">
+                                <label for="confirmPassword">Confirm Password</label>
+                                <input type="password" name="confirmPassword" class="form-control" id="confirmPassword" />
+                                <em id="confirmPassword-error" class="error invalid-feedback"></em>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="modalClose" class="btn btn-outline-danger reset" data-dismiss="modal">Close</button>
+                <button type="button" onclick="submit();" class="btn btn-outline-success">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var alowedImgType = ['jpeg', 'jpg', 'png', 'gif'];
+        var alowedCVType = ['pdf', 'docx', 'doc'];
+        $(document).ready(function () {
+            $('.reset').click(function () {
+                $('#userForm')[0].reset();
+                $('#userForm').find('.is-invalid').removeClass('is-invalid');
+            });
+        });
+
+        /* SUBMIT INSERT FORM */
+        function submit() {
+            var pathname = window.location.pathname;
+            
+            var imgfiles = $('#userImage').prop("files");
+            var cvfiles = $('#userCV').prop("files");
+
+            if (imgfiles.length > 0 && imgfiles[0].size > 2097152) {
+                alert('Image size can\'t exceed 2mb');
+                return;
+            }
+
+            if (cvfiles.length > 0 && cvfiles[0].size > 2097152) {
+                alert('CV size can\'t exceed 2mb');
+                return;
+            }
+
+            if (imgfiles.length > 0 && !alowedImgType.includes(imgfiles[0].type.split('/')[1].toLowerCase())) {
+                alert('Please provide valid jpeg/jpg/png/gif Image file');
+                return;
+            }
+
+            if (cvfiles.length > 0 && !alowedCVType.includes(cvfiles[0].type.split('/')[1].toLowerCase())) {
+                alert('Please provide valid pdf/docx/doc CV file');
+                return;
+            }
+
+            var formData = new FormData();
+            formData = new FormData();
+            formData.append("userImgFile", imgfiles[0]);
+            formData.append("userCVFile", cvfiles[0]);
+            formData.append("fName", $('#fName').val());
+            formData.append("lName", $('#lName').val());
+            formData.append("phoneNo", $('#phoneNo').val());
+            formData.append("emailNo", $('#emailNo').val());
+            formData.append("userCity", $('#userCity').val());
+            formData.append("password", $('#password').val());
+            formData.append("confirmPassword", $('#confirmPassword').val());
+            formData.append("dob", $('#dob').val());
+            formData.append("gender", $('#gender').val());
+
+            $.ajax({
+                url: '@Url.RouteUrl("Register")',
+                processData: false,
+                contentType: false,
+                data: formData,
+                type: 'POST',
+            }).done(function (response) {
+                if (response > 0) {
+                        $('.reset').click();
+                        alert('Registration Successfull. Thank You!');
+                    if (pathname == '/View') window.location = '@Url.RouteUrl("LogOut")';
+                    } else {
+                        for (key in response) {
+                            if (response[key].length > 0) {
+                                $('#' + key).addClass('is-invalid');
+                                $('#' + key + '-error').text(response[key]);
+                                $('#' + key).next('.chosen-container').css('border', '1px solid #ff0000');
+                            } else {
+                                $('#' + key).removeClass('is-invalid');
+                                $('#' + key + '-error').text();
+                            }
+                        }
+                    }
+            }).fail(function () {
+                alert('Oops...!Something went wrong with ajax !');
+            });
+        }
+
+</script>
